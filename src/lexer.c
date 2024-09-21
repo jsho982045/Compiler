@@ -2,6 +2,16 @@
 #include <ctype.h>
 #include <string.h>
 
+
+typedef struct {
+    char type[20];
+    char value[100];
+} Token;
+
+Token tokens[100];
+int token_count = 0;
+
+
 const char* keywords[] = {
     "int", "char", "string", "float", "double", 
     "if", "else", "for", "while", "return", "void", 
@@ -19,6 +29,12 @@ int is_keyword(const char *str) {
     return 0;
 }
 
+void add_token(const char* type, const char* value) {
+    strcpy(tokens[token_count].type, type);
+    strcpy(tokens[token_count].value, value);
+    token_count++;
+}
+
 void lexer(const char *input) {
     int i = 0;
     char token[100];
@@ -30,7 +46,7 @@ void lexer(const char *input) {
         }
 
         if(isalpha(input[i])){
-            int start = 0;
+        int start = 0;
             while (isalnum(input[i])){
                 token[start++] = input[i++];
 
@@ -38,10 +54,10 @@ void lexer(const char *input) {
             token[start] = '\0';
 
             if(is_keyword(token)){
-                printf("Token: KEYWORD (%s)\n", token);
+                add_token("KEYWORD", token);
             }
             else {
-                printf("token: IDENTIFIER (%s)\n", token);
+                add_token("IDENTIFIER", token);
             }
             continue;
         }
@@ -56,18 +72,22 @@ void lexer(const char *input) {
                 token[start++] = input[i++];
             }
             token[start] = '\0';
-            printf("Token: NUMBER (%s)\n", token);
+            add_token("NUMBER", token);
             continue;
         }
 
         if(input[i] == '=' || input[i] == '<' || input[i] == '>' || input[i] == '+' || input[i] == '-') {
-            printf("Token: OPERATOR (%c)\n", input[i]);
+            token[0] = input[i];
+            token[i] = '\0';
+            add_token("OPERATOR", token);
             i++;
             continue;
         }
 
         if(input[i] == ';' || input[i] == '(' || input[i] == ')'){
-            printf("Token: PUNCTUATION %c\n", input[i]);
+            token[0] = input[i];
+            token[1] = '\0';
+            add_token("PUNCTUATION", token);
             i++;
             continue;
         }
